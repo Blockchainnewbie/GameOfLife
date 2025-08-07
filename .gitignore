@@ -1,0 +1,15 @@
+# IDE-spezifische Konfiguration (VS Code)
+# Enthält deine persönlichen Editor-Einstellungen. Andere Entwickler haben
+# eventuell andere Einstellungen oder nutzen eine andere IDE, was zu Konflikten führen würde.
+game_of_life/.vscode/
+*.code-workspace
+
+# Kompiliertes Build-Verzeichnis
+# Der `bin`-Ordner enthält die kompilierten .class-Dateien. Er wird aus dem
+# Quellcode generiert und gehört nicht in die Versionskontrolle.
+game_of_life/bin/
+
+# Konfiguration für Notizen (Obsidian)
+# Dieser Ordner speichert deine persönlichen Layout- und Plugin-Einstellungen
+# für deine Notizen, nicht die Notizen (.md-Dateien) selbst.
+docs/.obsidian/
