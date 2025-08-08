@@ -131,79 +131,90 @@ public class Spielfeld
     /**
      * Methode zum Erzeugen der nächsten Generation nach den Regeln von Conway.
      */
-    public void berechneNaechsteGeneration()
-    {
-        // Ein neues temporäres Array für das Spielfeld anlegen
+        /**
+     * Führt einen Simulationsschritt nach den Regeln von Conway's Game of Life aus
+     * und gibt zurück, welche Zellen sich im Zustand geändert haben.
+     *
+     * @return Eine 2D-boolean-Matrix mit denselben Dimensionen wie das Spielfeld.
+     *         true = Zustand der Zelle hat sich geändert, false = Zustand unverändert.
+     */
+    public boolean[][] stepAndReportChanged() {
+        // Neues temporäres Raster für die nächste Generation
         Zelle[][] neuesRaster = new Zelle[hoehe][breite];
-        
-        // Gehe jede Zelle des Spielfelds durch
-        for (int i = 0; i < hoehe; i++)
-        {
-            for (int j = 0; j < breite; j++)
-            {
+
+        // Matrix zur Erfassung aller Änderungen
+        boolean[][] changed = new boolean[hoehe][breite];
+
+        // Spielfeld Zelle für Zelle durchgehen
+        for (int i = 0; i < hoehe; i++) {
+            for (int j = 0; j < breite; j++) {
                 int lebendeNachbarn = 0; // Zähler für lebende Nachbarn
 
-                // Überprüfe alle 8 Nachbarzellen
-                for (int x = -1; x <= 1; x++)
-                {
-                    for (int y = -1; y <= 1; y++)
-                    {   
+                // Alle 8 Nachbarn überprüfen
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
                         // Die aktuelle Zelle selbst überspringen
-                        if (x == 0 && y == 0)
-                        {
-                            continue;
-                        }
+                        if (x == 0 && y == 0) continue;
 
                         int nachbarVonI = i + x;
                         int nachbarVonJ = j + y;
 
-                        // Prüfe, ob die Nachbarzelle innerhalb der Spielfeldgrenzen liegt
-                        if (nachbarVonI >= 0 && nachbarVonI < hoehe && nachbarVonJ >= 0 && nachbarVonJ < breite)
-                        {
-                            // Wenn die Nachbarzelle lebendig ist, Zähler erhöhen
-                            if (raster[nachbarVonI][nachbarVonJ].getIstLebendig())
-                            {
+                        // Prüfen, ob Nachbar innerhalb der Spielfeldgrenzen liegt
+                        if (nachbarVonI >= 0 && nachbarVonI < hoehe &&
+                            nachbarVonJ >= 0 && nachbarVonJ < breite) {
+                            if (raster[nachbarVonI][nachbarVonJ].getIstLebendig()) {
                                 lebendeNachbarn++;
                             }
                         }
                     }
                 }
-                
-                // Erzeuge eine neue Zelle für die nächste Generation, standardmäßig tot
+
+                // Neue Zelle erzeugen (standardmäßig tot)
                 neuesRaster[i][j] = new Zelle(false);
 
-                // Wende die Regeln von Conway an
-                if (raster[i][j].getIstLebendig())
-                {
-                    // Regel 1 & 3: Weniger als 2 oder mehr als 3 lebende Nachbarn -> Zelle stirbt
-                    if (lebendeNachbarn < 2 || lebendeNachbarn > 3)
-                    {
-                        neuesRaster[i][j].setIstLebendig(false);
+                boolean vorherLebendig = raster[i][j].getIstLebendig();
+                boolean nachherLebendig = vorherLebendig;
+
+                // Regeln von Conway anwenden
+                if (vorherLebendig) {
+                    // Unterbevölkerung oder Überbevölkerung → stirbt
+                    if (lebendeNachbarn < 2 || lebendeNachbarn > 3) {
+                        nachherLebendig = false;
                     }
-                    // Regel 2: 2 lebende Nachbarn -> Zelle bleibt lebendig
-                    else
-                    {
-                        neuesRaster[i][j].setIstLebendig(true);
+                } else {
+                    // Wiederbelebung bei genau 3 lebenden Nachbarn
+                    if (lebendeNachbarn == 3) {
+                        nachherLebendig = true;
                     }
                 }
-                else
-                {
-                    // Regel 4: Genau 3 lebende Nachbarn -> Zelle wird lebendig
-                    if (lebendeNachbarn == 3)
-                    {
-                        neuesRaster[i][j].setIstLebendig(true);
-                    }
-                    // Sonst bleibt die Zelle tot
-                    else
-                    {
-                        neuesRaster[i][j].setIstLebendig(false);
-                    }
+
+                // Neuen Zustand setzen
+                neuesRaster[i][j].setIstLebendig(nachherLebendig);
+
+                // Änderung merken
+                if (vorherLebendig != nachherLebendig) {
+                    changed[i][j] = true;
                 }
             }
         }
-        // Aktualisiere das Spielfeld mit der neuen Generation
+
+        // Spielfeld aktualisieren
         raster = neuesRaster;
+
+        // Änderungsmatrix zurückgeben
+        return changed;
     }
+
+    /**
+     * Alte API für einen Simulationsschritt – behält Kompatibilität bei.
+     * Diese Methode delegiert intern an {@link #stepAndReportChanged()}, 
+     * ignoriert aber den Rückgabewert.
+     */
+    public void berechneNaechsteGeneration() {
+        // Rückgabewert wird hier nicht benötigt
+        stepAndReportChanged();
+    }
+
 
     /**
      * Gibt die Höhe des Spielfelds zurück.
