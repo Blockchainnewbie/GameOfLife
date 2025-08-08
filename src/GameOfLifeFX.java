@@ -24,8 +24,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 // A*-Integration
+import java.util.List;
+import astar.AStarAlgorithmus;
+import astar.GitterModell;
 import astar.GitterPosition;
-// Weitere A*-Klassen werden bei Bedarf importiert
+import astar.ManhattanHeuristik;
+import astar.ZellenZustand;
 
 /**
  * ➤ Minimales JavaFX‑Gerüst **zum SELBST Ausfüllen**.
@@ -341,27 +345,104 @@ public class GameOfLifeFX extends Application {
             // Matrix aus dem aktuellen Spielfeld holen: true = lebend (Hindernis)
             boolean[][] matrix = GridAdapter.toMatrix(field);
 
-            // Beispiel: Starte oben links, Ziel unten rechts (zeile, spalte)
-            GitterPosition start = new GitterPosition(0, 0);
-            GitterPosition ziel = new GitterPosition(matrix.length - 1, matrix[0].length - 1);
-
-            // Prüfen, ob Start oder Ziel blockiert sind
-            if (matrix[start.getZeile()][start.getSpalte()] || matrix[ziel.getZeile()][ziel.getSpalte()]) {
+            int rows = matrix.length;
+            int cols = rows > 0 ? matrix[0].length : 0;
+            if (rows == 0 || cols == 0) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText(null);
-                alert.setContentText("Start oder Ziel ist blockiert.");
+                alert.setContentText("Matrix ist leer – kein Weg möglich.");
                 alert.showAndWait();
                 return;
             }
 
-            // TODO: Hier könnte der A*-Algorithmus gestartet werden
-            System.out.println("A* kann gestartet werden – Start und Ziel sind frei.");
+            // Wunsch-Start/Ziel
+            GitterPosition start = new GitterPosition(0, 0);
+            GitterPosition ziel = new GitterPosition(rows - 1, cols - 1);
+
+            // Falls blockiert: nächstgelegene freie Zellen suchen
+            if (matrix[start.getZeile()][start.getSpalte()]) {
+                GitterPosition frei = findeNaechsteFreieZelle(matrix, start.getZeile(), start.getSpalte());
+                if (frei == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Kein freier Startpunkt auffindbar.");
+                    alert.showAndWait();
+                    return;
+                }
+                start = frei;
+            }
+            if (matrix[ziel.getZeile()][ziel.getSpalte()]) {
+                GitterPosition frei = findeNaechsteFreieZelle(matrix, ziel.getZeile(), ziel.getSpalte());
+                if (frei == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Kein freies Ziel auffindbar.");
+                    alert.showAndWait();
+                    return;
+                }
+                ziel = frei;
+            }
+
+            // GitterModell befüllen
+            GitterModell modell = new GitterModell(rows, cols);
+            for (int y = 0; y < rows; y++) {
+                for (int x = 0; x < cols; x++) {
+                    if (matrix[y][x]) {
+                        modell.setZustand(new GitterPosition(y, x), ZellenZustand.HINDERNIS);
+                    }
+                }
+            }
+
+            AStarAlgorithmus astar = new AStarAlgorithmus(modell, new ManhattanHeuristik());
+            List<GitterPosition> pfad = astar.findeWeg(start, ziel);
+
+            if (pfad.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("Kein Pfad gefunden");
+                alert.setContentText("Zwischen Start (" + start.getZeile()+","+start.getSpalte()+") und Ziel ("+ziel.getZeile()+","+ziel.getSpalte()+") existiert kein Weg.");
+                alert.showAndWait();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("Pfad gefunden");
+                alert.setContentText("Länge: " + (pfad.size() - 1) + " Schritte. Start: (" + start.getZeile()+","+start.getSpalte()+") Ziel: ("+ziel.getZeile()+","+ziel.getSpalte()+")");
+                alert.showAndWait();
+            }
         });
 
         // Alle Elemente zum Header hinzufügen
         header.getChildren().addAll(title, subtitle, startPauseButton, resetButton, resizeButton, startAStarButton);
 
         return header;
+    }
+
+    // Sucht die nächstgelegene freie Zelle (false) relativ zu (sr, sc) mittels BFS (4-Nachbarschaft)
+    private GitterPosition findeNaechsteFreieZelle(boolean[][] matrix, int sr, int sc) {
+        int rows = matrix.length;
+        int cols = rows > 0 ? matrix[0].length : 0;
+        boolean[][] besucht = new boolean[rows][cols];
+        java.util.ArrayDeque<int[]> q = new java.util.ArrayDeque<>();
+
+        if (sr < 0 || sc < 0 || sr >= rows || sc >= cols) return null;
+
+        q.add(new int[]{sr, sc});
+        besucht[sr][sc] = true;
+
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            int r = cur[0], c = cur[1];
+            if (!matrix[r][c]) {
+                return new GitterPosition(r, c);
+            }
+            for (int[] d : dirs) {
+                int nr = r + d[0], nc = c + d[1];
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !besucht[nr][nc]) {
+                    besucht[nr][nc] = true;
+                    q.add(new int[]{nr, nc});
+                }
+            }
+        }
+        return null; // keine freie Zelle gefunden
     }
 
     /**

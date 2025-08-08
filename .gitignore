@@ -13,3 +13,5 @@ game_of_life/bin/
 # Dieser Ordner speichert deine persönlichen Layout- und Plugin-Einstellungen
 # für deine Notizen, nicht die Notizen (.md-Dateien) selbst.
 docs/.obsidian/
+
+*.class
