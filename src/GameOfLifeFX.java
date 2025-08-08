@@ -373,33 +373,38 @@ public class GameOfLifeFX extends Application {
                 return;
             }
 
-            // Wunsch-Start/Ziel
-            GitterPosition start = new GitterPosition(0, 0);
-            GitterPosition ziel = new GitterPosition(rows - 1, cols - 1);
+            // Zufällige freie Start-/Zielzellen wählen
+            int maxTries = Math.max(1000, rows * cols * 4);
+            int sy, sx, zy, zx, tries = 0;
+            do {
+                sy = (int) (Math.random() * rows);
+                sx = (int) (Math.random() * cols);
+                tries++;
+                if (tries > maxTries) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Kein freier Startpunkt gefunden.");
+                    alert.showAndWait();
+                    return;
+                }
+            } while (matrix[sy][sx]);
 
-            // Falls blockiert: nächstgelegene freie Zellen suchen
-            if (matrix[start.getZeile()][start.getSpalte()]) {
-                GitterPosition frei = findeNaechsteFreieZelle(matrix, start.getZeile(), start.getSpalte());
-                if (frei == null) {
+            tries = 0;
+            do {
+                zy = (int) (Math.random() * rows);
+                zx = (int) (Math.random() * cols);
+                tries++;
+                if (tries > maxTries) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText(null);
-                    alert.setContentText("Kein freier Startpunkt auffindbar.");
+                    alert.setContentText("Kein freies Ziel gefunden.");
                     alert.showAndWait();
                     return;
                 }
-                start = frei;
-            }
-            if (matrix[ziel.getZeile()][ziel.getSpalte()]) {
-                GitterPosition frei = findeNaechsteFreieZelle(matrix, ziel.getZeile(), ziel.getSpalte());
-                if (frei == null) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setHeaderText(null);
-                    alert.setContentText("Kein freies Ziel auffindbar.");
-                    alert.showAndWait();
-                    return;
-                }
-                ziel = frei;
-            }
+            } while (matrix[zy][zx] || (zy == sy && zx == sx));
+
+            GitterPosition start = new GitterPosition(sy, sx);
+            GitterPosition ziel = new GitterPosition(zy, zx);
 
             // GitterModell befüllen
             GitterModell modell = new GitterModell(rows, cols);
@@ -439,35 +444,7 @@ public class GameOfLifeFX extends Application {
         return header;
     }
 
-    // Sucht die nächstgelegene freie Zelle (false) relativ zu (sr, sc) mittels BFS (4-Nachbarschaft)
-    private GitterPosition findeNaechsteFreieZelle(boolean[][] matrix, int sr, int sc) {
-        int rows = matrix.length;
-        int cols = rows > 0 ? matrix[0].length : 0;
-        boolean[][] besucht = new boolean[rows][cols];
-        java.util.ArrayDeque<int[]> q = new java.util.ArrayDeque<>();
-
-        if (sr < 0 || sc < 0 || sr >= rows || sc >= cols) return null;
-
-        q.add(new int[]{sr, sc});
-        besucht[sr][sc] = true;
-
-        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-        while (!q.isEmpty()) {
-            int[] cur = q.poll();
-            int r = cur[0], c = cur[1];
-            if (!matrix[r][c]) {
-                return new GitterPosition(r, c);
-            }
-            for (int[] d : dirs) {
-                int nr = r + d[0], nc = c + d[1];
-                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !besucht[nr][nc]) {
-                    besucht[nr][nc] = true;
-                    q.add(new int[]{nr, nc});
-                }
-            }
-        }
-        return null; // keine freie Zelle gefunden
-    }
+    // Hinweis: BFS-Fallback entfernt, da Start/Ziel per Math.random auf freie Zellen gewählt werden.
 
     /**
      * Aktualisiert den Zustand des Spiels (das "Model").
