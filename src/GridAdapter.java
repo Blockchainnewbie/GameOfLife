@@ -21,6 +21,10 @@ public final class GridAdapter {
         int h = f.getHoehe();
         int w = f.getBreite();
 
+        System.out.println("Spielfeld Höhe (Zeilen): " + f.getHoehe());
+        System.out.println("Spielfeld Breite (Spalten): " + f.getBreite());
+
+
         // Matrix für den A*
         boolean[][] matrix = new boolean[h][w];
 
@@ -35,7 +39,7 @@ public final class GridAdapter {
         }
 
 
-        return new boolean[0][0];
+        return matrix;
     }
 }
 

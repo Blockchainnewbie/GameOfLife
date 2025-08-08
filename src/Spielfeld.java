@@ -4,8 +4,8 @@ public class Spielfeld
     // Es besteht aus 50 x 50 Zellen
     // deklariert ein 2d-Array des Typs Zelle und Namen raster
     Zelle[][] raster;
-    private int hoehe; // Breite des Spielfelds
-    private int breite; // Höhe des Spielfelds
+    private int hoehe; // hoehe des Spielfelds
+    private int breite; // breite des Spielfelds
    
     /**
      * Konstruktor für das Spielfeld.

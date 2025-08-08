@@ -297,12 +297,18 @@ public class GameOfLifeFX extends Application {
         startPauseButton = new Button("Start");
         Button resetButton = new Button("Reset");
         Button resizeButton = new Button("Größe ändern");
+        
+        // Neuer Button für A*-Start (vorerst nur UI + Log)
+        Button startAStarButton = new Button("A* starten");
+
+        
 
         // Button-Styling
         String buttonStyle = "-fx-background-color: #08ff08ff; -fx-text-fill: #471e6dff; -fx-font-weight: bold;";
         startPauseButton.setStyle(buttonStyle);
         resetButton.setStyle(buttonStyle);
         resizeButton.setStyle(buttonStyle);
+        startAStarButton.setStyle(buttonStyle);
 
         // Event-Handler für den Start/Pause-Button
         startPauseButton.setOnAction(event -> {
@@ -332,11 +338,64 @@ public class GameOfLifeFX extends Application {
             }
         });
 
+        // Event-Handler für A* Button
+        startAStarButton.setOnAction(e -> {
+            if(field == null)
+            {
+                System.out.println("Kein Spielfeld vorhanden!");
+                return;
+            }
+
+            System.out.println("Spielfeld Breite: " + field.getBreite());
+            System.out.println("Spielfeld Höhe: " + field.getHoehe());
+
+        
+            // Matrix aus dem aktuellen Spielfeld holen: true = lebend (Hindernisse)
+            boolean[][] matrix = GridAdapter.toMatrix(field);
+
+            // Matrixgröße ausgeben
+            System.out.println("Matrix Größe: " + matrix.length + " x " + (matrix.length > 0 ? matrix[0].length : 0));
+
+            // Beispiel: Ausgabe der ersten 5x5 Zellen
+            for (int y = 0; y < Math.min(5, matrix.length); y++) {
+                for (int x = 0; x < Math.min(5, matrix[y].length); x++) {
+                    System.out.print(matrix[y][x] ? "1 " : "0 ");
+                }
+                System.out.println();
+            }
+            
+            int h = matrix.length;
+            int w = (h > 0) ? matrix[0].length : 0;
+
+            System.out.println("Matrix Größe: " + h + " x " + w);
+            System.out.println("Matrix-Inhalt:");
+
+            for (int i = 0; i < h; i++) {
+                StringBuilder row = new StringBuilder();
+                for (int j = 0; j < w; j++) {
+                    row.append(matrix[i][j] ? "1" : "0");
+                }
+                System.out.println(row.toString());
+            }
+
+            if (h > 0) {
+                w = matrix[0].length;
+            } else {
+                w = 0;
+            }
+
+        });
+
         // Event-Handler für den "Größe ändern"-Button
         resizeButton.setOnAction(e -> showSizeDialog());
 
         // Alle Elemente zum Header hinzufügen
-        header.getChildren().addAll(title, subtitle, startPauseButton, resetButton, resizeButton);
+        header.getChildren().addAll(
+                                    title, subtitle,
+                                    startPauseButton, resetButton, resizeButton,
+                                    startAStarButton
+                                );
+
 
         return header;
     }
