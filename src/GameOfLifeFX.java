@@ -74,6 +74,10 @@ public class GameOfLifeFX extends Application {
     private int anzahlZellen = 100; // Standardwert für die begrenzte Anzahl
 
     private Button startPauseButton; // Eine Referenz auf den Button, um seinen Text zu ändern.
+    // Markierungen für A* Start/Ziel zur Visualisierung
+    private GitterPosition markedStart;
+    private GitterPosition markedZiel;
+    private List<GitterPosition> markedPath;
 
     /**
      * Die Haupt-Einstiegsmethode für eine JavaFX-Anwendung.
@@ -268,6 +272,10 @@ public class GameOfLifeFX extends Application {
         // 4. Den Zustand zurücksetzen und das neue Feld sofort zeichnen.
         this.simulationState = SimulationState.PAUSED;
         this.startPauseButton.setText("Start");
+    // A*-Markierungen zurücksetzen
+    this.markedStart = null;
+    this.markedZiel = null;
+    this.markedPath = null;
         render();
 
         // 5. Die Größe des Fensters an den neuen Inhalt anpassen.
@@ -331,8 +339,18 @@ public class GameOfLifeFX extends Application {
                 // Nach dem Reset immer in den Pause-Zustand wechseln.
                 simulationState = SimulationState.PAUSED;
                 startPauseButton.setText("Start");
+                // A*-Markierungen zurücksetzen
+                this.markedStart = null;
+                this.markedZiel = null;
+                this.markedPath = null;
                 render(); // Das zurückgesetzte Feld sofort anzeigen.
             }
+        });
+
+        // Event-Handler für den "Größe ändern"-Button
+        resizeButton.setOnAction(event -> {
+            // Öffnet erneut den Dialog zur Größen-/Musterwahl und baut das Spielfeld neu
+            showSizeDialog();
         });
 
         // Event-Handler für A* Button
@@ -395,6 +413,12 @@ public class GameOfLifeFX extends Application {
 
             AStarAlgorithmus astar = new AStarAlgorithmus(modell, new ManhattanHeuristik());
             List<GitterPosition> pfad = astar.findeWeg(start, ziel);
+
+            // Markierungen für Render setzen
+            this.markedStart = start;
+            this.markedZiel = ziel;
+            this.markedPath = pfad.isEmpty() ? null : pfad;
+            render();
 
             if (pfad.isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -484,6 +508,41 @@ public class GameOfLifeFX extends Application {
                     gc.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1);
                 }
             }
+        }
+
+        // Nach dem Zellen-Draw: Start/Ziel farbig markieren
+        // Zuerst den Pfad, dann Start/Ziel oben drauf
+        if (markedPath != null) {
+            final int insetPath = 3;
+            gc.setFill(Color.GOLD);
+            for (GitterPosition p : markedPath) {
+                int pxCell = p.getSpalte();
+                int pyCell = p.getZeile();
+                double px = pxCell * CELL_SIZE + insetPath;
+                double py = pyCell * CELL_SIZE + insetPath;
+                double size = CELL_SIZE - 2 * insetPath;
+                gc.fillRect(px, py, size, size);
+            }
+        }
+
+        final int inset = 2; // kleiner Rand, damit die Markierung sichtbar bleibt
+        if (markedStart != null) {
+            int sx = markedStart.getSpalte();
+            int sy = markedStart.getZeile();
+            double px = sx * CELL_SIZE + inset;
+            double py = sy * CELL_SIZE + inset;
+            double size = CELL_SIZE - 2 * inset;
+            gc.setFill(Color.DEEPSKYBLUE);
+            gc.fillRect(px, py, size, size);
+        }
+        if (markedZiel != null) {
+            int zx = markedZiel.getSpalte();
+            int zy = markedZiel.getZeile();
+            double px = zx * CELL_SIZE + inset;
+            double py = zy * CELL_SIZE + inset;
+            double size = CELL_SIZE - 2 * inset;
+            gc.setFill(Color.ORANGERED);
+            gc.fillRect(px, py, size, size);
         }
     }
 
