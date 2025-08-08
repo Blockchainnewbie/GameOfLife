@@ -22,16 +22,10 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import astar.GitterPosition;
 
 // A*-Integration
-import java.util.List;
-import java.util.ArrayList;
-import astar.AStarAlgorithmus;
-import astar.GitterModell;
 import astar.GitterPosition;
-import astar.ManhattanHeuristik;
-import astar.ZellenZustand;
+// Weitere A*-Klassen werden bei Bedarf importiert
 
 /**
  * ➤ Minimales JavaFX‑Gerüst **zum SELBST Ausfüllen**.
@@ -299,15 +293,8 @@ public class GameOfLifeFX extends Application {
         startPauseButton = new Button("Start");
         Button resetButton = new Button("Reset");
         Button resizeButton = new Button("Größe ändern");
-<<<<<<< HEAD
-        
-        // Neuer Button für A*-Start (vorerst nur UI + Log)
         Button startAStarButton = new Button("A* starten");
-
         
-=======
-        Button startAStarButton = new Button("A* starten");
->>>>>>> origin/main
 
         // Button-Styling
         String buttonStyle = "-fx-background-color: #08ff08ff; -fx-text-fill: #471e6dff; -fx-font-weight: bold;";
@@ -345,67 +332,18 @@ public class GameOfLifeFX extends Application {
         });
 
         // Event-Handler für A* Button
-        startAStarButton.setOnAction(e -> {
-            if(field == null)
-            {
+        startAStarButton.setOnAction(event -> {
+            if (field == null) {
                 System.out.println("Kein Spielfeld vorhanden!");
                 return;
             }
 
-<<<<<<< HEAD
-            System.out.println("Spielfeld Breite: " + field.getBreite());
-            System.out.println("Spielfeld Höhe: " + field.getHoehe());
-
-        
-            // Matrix aus dem aktuellen Spielfeld holen: true = lebend (Hindernisse)
+            // Matrix aus dem aktuellen Spielfeld holen: true = lebend (Hindernis)
             boolean[][] matrix = GridAdapter.toMatrix(field);
 
-            // Matrixgröße ausgeben
-            System.out.println("Matrix Größe: " + matrix.length + " x " + (matrix.length > 0 ? matrix[0].length : 0));
-
-            // Beispiel: Ausgabe der ersten 5x5 Zellen
-            for (int y = 0; y < Math.min(5, matrix.length); y++) {
-                for (int x = 0; x < Math.min(5, matrix[y].length); x++) {
-                    System.out.print(matrix[y][x] ? "1 " : "0 ");
-                }
-                System.out.println();
-            }
-            
-            System.out.println("Matrix-Inhalt:");
-
-            for (int i = 0; i < matrix.length; i++) {
-                StringBuilder row = new StringBuilder();
-                for (int j = 0; j < (matrix.length > 0 ? matrix[0].length : 0); j++) {
-                    row.append(matrix[i][j] ? "1" : "0");
-                }
-                System.out.println(row.toString());
-            }
-        });
-        
-        // Alle Elemente zum Header hinzufügen
-        header.getChildren().addAll(
-                                    title, subtitle,
-                                    startPauseButton, resetButton, resizeButton,
-                                    startAStarButton
-                                );
-
-=======
-        // Event-Handler für den A*-Button
-        startAStarButton.setOnAction(event -> {
-            if (field == null) {
-                return;
-            }
-
-            boolean[][] matrix = new boolean[field.getHoehe()][field.getBreite()];
-            for (int y = 0; y < field.getHoehe(); y++) {
-                for (int x = 0; x < field.getBreite(); x++) {
-                    matrix[y][x] = field.raster[y][x].getIstLebendig();
-                }
-            }
-
-            // Beispiel: Starte oben links, Ziel unten rechts (x, y)
+            // Beispiel: Starte oben links, Ziel unten rechts (zeile, spalte)
             GitterPosition start = new GitterPosition(0, 0);
-            GitterPosition ziel = new GitterPosition(matrix[0].length - 1, matrix.length - 1);
+            GitterPosition ziel = new GitterPosition(matrix.length - 1, matrix[0].length - 1);
 
             // Prüfen, ob Start oder Ziel blockiert sind
             if (matrix[start.getZeile()][start.getSpalte()] || matrix[ziel.getZeile()][ziel.getSpalte()]) {
@@ -416,11 +354,12 @@ public class GameOfLifeFX extends Application {
                 return;
             }
 
+            // TODO: Hier könnte der A*-Algorithmus gestartet werden
+            System.out.println("A* kann gestartet werden – Start und Ziel sind frei.");
         });
 
         // Alle Elemente zum Header hinzufügen
         header.getChildren().addAll(title, subtitle, startPauseButton, resetButton, resizeButton, startAStarButton);
->>>>>>> origin/main
 
         return header;
     }
