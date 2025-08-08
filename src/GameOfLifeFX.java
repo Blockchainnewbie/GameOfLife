@@ -6,6 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -21,6 +22,7 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import astar.GitterPosition;
 
 /**
  * ➤ Minimales JavaFX‑Gerüst **zum SELBST Ausfüllen**.
@@ -288,12 +290,14 @@ public class GameOfLifeFX extends Application {
         startPauseButton = new Button("Start");
         Button resetButton = new Button("Reset");
         Button resizeButton = new Button("Größe ändern");
+        Button startAStarButton = new Button("A* starten");
 
         // Button-Styling
         String buttonStyle = "-fx-background-color: #08ff08ff; -fx-text-fill: #471e6dff; -fx-font-weight: bold;";
         startPauseButton.setStyle(buttonStyle);
         resetButton.setStyle(buttonStyle);
         resizeButton.setStyle(buttonStyle);
+        startAStarButton.setStyle(buttonStyle);
 
         // Event-Handler für den Start/Pause-Button
         startPauseButton.setOnAction(event -> {
@@ -326,8 +330,36 @@ public class GameOfLifeFX extends Application {
         // Event-Handler für den "Größe ändern"-Button
         resizeButton.setOnAction(e -> showSizeDialog());
 
+        // Event-Handler für den A*-Button
+        startAStarButton.setOnAction(event -> {
+            if (field == null) {
+                return;
+            }
+
+            boolean[][] matrix = new boolean[field.getHoehe()][field.getBreite()];
+            for (int y = 0; y < field.getHoehe(); y++) {
+                for (int x = 0; x < field.getBreite(); x++) {
+                    matrix[y][x] = field.raster[y][x].getIstLebendig();
+                }
+            }
+
+            // Beispiel: Starte oben links, Ziel unten rechts (x, y)
+            GitterPosition start = new GitterPosition(0, 0);
+            GitterPosition ziel = new GitterPosition(matrix[0].length - 1, matrix.length - 1);
+
+            // Prüfen, ob Start oder Ziel blockiert sind
+            if (matrix[start.getZeile()][start.getSpalte()] || matrix[ziel.getZeile()][ziel.getSpalte()]) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText(null);
+                alert.setContentText("Start oder Ziel ist blockiert.");
+                alert.showAndWait();
+                return;
+            }
+
+        });
+
         // Alle Elemente zum Header hinzufügen
-        header.getChildren().addAll(title, subtitle, startPauseButton, resetButton, resizeButton);
+        header.getChildren().addAll(title, subtitle, startPauseButton, resetButton, resizeButton, startAStarButton);
 
         return header;
     }
