@@ -22,6 +22,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+// A*-Integration
+import java.util.List;
+import java.util.ArrayList;
+import astar.AStarAlgorithmus;
+import astar.GitterModell;
+import astar.GitterPosition;
+import astar.ManhattanHeuristik;
+import astar.ZellenZustand;
+
 /**
  * ➤ Minimales JavaFX‑Gerüst **zum SELBST Ausfüllen**.
  * Du übst dabei Schritt für Schritt:

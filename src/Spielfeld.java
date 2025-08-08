@@ -222,4 +222,16 @@ public class Spielfeld
     {
         return this.breite;
     }
+
+    // Wir brauchen hier einen Getter, als eine Art Abstraktionsscichtfür die Abfrage ob die Zelle lebt
+    // Zugriff auf Zellen nur über Spielfeld-Methoden (z. B. isAlive(x, y)).
+    // So bleibt die interne Datenstruktur (raster) gekapselt und kann später
+    // leicht geändert werden, ohne dass anderer Code angepasst werden muss.
+    // Erhöht Flexibilität, Lesbarkeit und vereinfacht z. B. A*-Integration.
+
+    public boolean isAlive(int x, int y) 
+    {
+        return raster[y][x].getIstLebendig();
+    }
+
 }

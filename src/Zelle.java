@@ -30,7 +30,7 @@ public class Zelle
         return this.istLebendig;
     }
 
-    /**
+    /*
      * Setter-Methode, um den Zustand der Zelle zu setzen.
      * @param istLebendig Der neue Zustand der Zelle (true für lebendig, false für tot).
      */
