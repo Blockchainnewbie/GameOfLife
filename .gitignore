@@ -1,4 +1,42 @@
-# IDE-spezifische Konfiguration (VS Code)
+# --- Java Build Artefakte ---
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+
+# Build-/Output-Ordner
+bin/
+build/
+out/
+target/
+
+# Temporäre Dateien
+*.tmp
+*.swp
+*~
+
+# IDE/Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+.metadata/
+.recommenders/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Betriebssystem-Dateien
+.DS_Store
+Thumbs.db
+
+# Hinweis: Keine globale *.jar-Ignorierung, damit libs im Ordner "lib/" versioniert bleiben.# IDE-spezifische Konfiguration (VS Code)
 # Enthält deine persönlichen Editor-Einstellungen. Andere Entwickler haben
 # eventuell andere Einstellungen oder nutzen eine andere IDE, was zu Konflikten führen würde.
 game_of_life/.vscode/
