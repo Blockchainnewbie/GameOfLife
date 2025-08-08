@@ -1,7 +1,8 @@
 package astar;
 
 /**
- * Repräsentiert eine Position im Gitter mit Zeilen- und Spaltenindex.
+ * Repräsentiert eine unveränderliche Position im Gitter mit Zeilen- und Spaltenindex.
+ * Dient als Schlüssel in Maps/Sets und ist daher mit equals/hashCode implementiert.
  */
 public class GitterPosition {
     private final int zeile;

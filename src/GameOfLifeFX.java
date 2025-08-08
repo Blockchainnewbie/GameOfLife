@@ -32,11 +32,17 @@ import astar.ManhattanHeuristik;
 import astar.ZellenZustand;
 
 /**
- * ➤ Minimales JavaFX‑Gerüst **zum SELBST Ausfüllen**.
- * Du übst dabei Schritt für Schritt:
- *   1. Model (Spielfeld) instanzieren
- *   2. update‑Logik aufrufen
- *   3. Zellen zeichnen
+ * JavaFX-Oberfläche für Conway's Game of Life mit A*-Wegfindung.
+ *
+ * Verantwortlichkeiten:
+ * - Erstellt die UI (Buttons, Dialoge) und das Zeichen-Canvas.
+ * - Steuert die Simulationsschleife (AnimationTimer) und Rendering.
+ * - Bietet einen Button, der auf dem aktuellen Spielfeld per A* einen Weg
+ *   zwischen zwei zufälligen freien Zellen findet und visualisiert.
+ *
+ * Hinweise:
+ * - Zellgröße ist fix, Breite/Höhe des Spielfelds werden per Dialog abgefragt.
+ * - Lebende Zellen gelten für A* als Hindernisse (über GridAdapter.zuMatrix).
  */
 // extends Application macht macht diese Klasse zur JavaFX App
 public class GameOfLifeFX extends Application {
@@ -102,7 +108,7 @@ public class GameOfLifeFX extends Application {
         stage.setScene(new Scene(root));
         stage.setTitle("Game of Life by Sonny – JavaFX");
 
-        // 3) ZUERST den Dialog aufrufen, um die Größe und das Muster festzulegen.
+    // 3) ZUERST den Dialog aufrufen, um die Größe und das Muster festzulegen.
         showSizeDialog();
 
         // 4) JETZT, wo alles konfiguriert ist, das Fenster anzeigen.
@@ -119,8 +125,8 @@ public class GameOfLifeFX extends Application {
     }
 
     /**
-     * Zeigt einen Dialog an, um die Spielfeldgröße vom Benutzer abzufragen.
-     * Setzt die 'width' und 'height' Instanzvariablen.
+     * Zeigt einen Dialog an, um Spielfeldgröße und Startmuster abzufragen
+     * und initialisiert bzw. reinitialisiert danach das Spiel.
      */
     private void showSizeDialog() {
         // 1. Einen Dialog erstellen, der uns nur mitteilt, welcher Knopf gedrückt wurde.
@@ -242,11 +248,8 @@ public class GameOfLifeFX extends Application {
     }
 
     /**
-     * Baut das Spiel (neu) auf. Setzt die Größe, erstellt das Spielfeld und das Canvas.
-     * @param breiteInZellen Die neue Breite in Zellen.
-     * @param hoeheInZellen Die neue Höhe in Zellen.
-     * @param pattern Das zu verwendende Startmuster.
-     * @param anzahl Die Anzahl der Zellen für das begrenzte Muster.
+     * Baut das Spiel (neu) auf. Setzt die Größe, erstellt das Spielfeld und passt Canvas/Stage an.
+     * Setzt zudem den Simulationszustand und löscht A*-Markierungen.
      */
     private void reinitializeGame(int breiteInZellen, int hoeheInZellen, StartPattern pattern, int anzahl) {
         // 1. Pixel-Größe berechnen und speichern.
@@ -361,11 +364,11 @@ public class GameOfLifeFX extends Application {
             }
 
             // Matrix aus dem aktuellen Spielfeld holen: true = lebend (Hindernis)
-            boolean[][] matrix = GridAdapter.toMatrix(field);
+            boolean[][] matrix = GridAdapter.zuMatrix(field);
 
-            int rows = matrix.length;
-            int cols = rows > 0 ? matrix[0].length : 0;
-            if (rows == 0 || cols == 0) {
+            int zeilen = matrix.length;
+            int spalten = zeilen > 0 ? matrix[0].length : 0;
+            if (zeilen == 0 || spalten == 0) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText(null);
                 alert.setContentText("Matrix ist leer – kein Weg möglich.");
@@ -374,13 +377,13 @@ public class GameOfLifeFX extends Application {
             }
 
             // Zufällige freie Start-/Zielzellen wählen
-            int maxTries = Math.max(1000, rows * cols * 4);
-            int sy, sx, zy, zx, tries = 0;
+            int maxVersuche = Math.max(1000, zeilen * spalten * 4);
+            int sy, sx, zy, zx, versuche = 0;
             do {
-                sy = (int) (Math.random() * rows);
-                sx = (int) (Math.random() * cols);
-                tries++;
-                if (tries > maxTries) {
+                sy = (int) (Math.random() * zeilen);
+                sx = (int) (Math.random() * spalten);
+                versuche++;
+                if (versuche > maxVersuche) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText(null);
                     alert.setContentText("Kein freier Startpunkt gefunden.");
@@ -389,12 +392,12 @@ public class GameOfLifeFX extends Application {
                 }
             } while (matrix[sy][sx]);
 
-            tries = 0;
+            versuche = 0;
             do {
-                zy = (int) (Math.random() * rows);
-                zx = (int) (Math.random() * cols);
-                tries++;
-                if (tries > maxTries) {
+                zy = (int) (Math.random() * zeilen);
+                zx = (int) (Math.random() * spalten);
+                versuche++;
+                if (versuche > maxVersuche) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText(null);
                     alert.setContentText("Kein freies Ziel gefunden.");
@@ -407,9 +410,9 @@ public class GameOfLifeFX extends Application {
             GitterPosition ziel = new GitterPosition(zy, zx);
 
             // GitterModell befüllen
-            GitterModell modell = new GitterModell(rows, cols);
-            for (int y = 0; y < rows; y++) {
-                for (int x = 0; x < cols; x++) {
+            GitterModell modell = new GitterModell(zeilen, spalten);
+            for (int y = 0; y < zeilen; y++) {
+                for (int x = 0; x < spalten; x++) {
                     if (matrix[y][x]) {
                         modell.setZustand(new GitterPosition(y, x), ZellenZustand.HINDERNIS);
                     }
@@ -487,8 +490,8 @@ public class GameOfLifeFX extends Application {
             }
         }
 
-        // Nach dem Zellen-Draw: Start/Ziel farbig markieren
-        // Zuerst den Pfad, dann Start/Ziel oben drauf
+    // Nach dem Zellen-Draw: Pfad sowie Start/Ziel farbig markieren
+    // Zeichenreihenfolge (Layering): erst Pfad, dann Start & Ziel oben drauf
         if (markedPath != null) {
             final int insetPath = 3;
             gc.setFill(Color.GOLD);

@@ -1,6 +1,7 @@
 // Adapter: übersetzt das Spielfeld in eine Hindernis-Matrix für den A*.
 // Idee: Lebende Zellen = Hindernisse (true), tote Zellen = frei (false).
 // Vorteil: A* bleibt komplett unabhängig von Zelle/Spielfeld/JavaFX.
+// Diese Utility-Klasse enthält nur statische Hilfsmethoden.
 
 public final class GridAdapter {
 
@@ -15,26 +16,23 @@ public final class GridAdapter {
      * @param f das aktuelle Spielfeld
      * @return boolean[hoehe][breite] – true = blockiert (lebendig), false = frei (tot)
      */
-    public static boolean[][] toMatrix(Spielfeld f) 
+    public static boolean[][] zuMatrix(Spielfeld f) 
     {
         // Höhe und Breite aus dem Spielfeld lesen
-        int h = f.getHoehe();
-        int w = f.getBreite();
-
-        System.out.println("Spielfeld Höhe (Zeilen): " + f.getHoehe());
-        System.out.println("Spielfeld Breite (Spalten): " + f.getBreite());
+        int hoehe = f.getHoehe();
+        int breite = f.getBreite();
 
 
         // Matrix für den A*
-        boolean[][] matrix = new boolean[h][w];
+    boolean[][] matrix = new boolean[hoehe][breite];
 
         // Alle Zellen durchgehen
         // Dann in Matrix eintragen ob lebendig oder tot
-        for (int y = 0; y < h; y++) 
+        for (int y = 0; y < hoehe; y++) 
         {
-            for (int x = 0; x < w; x++)
+            for (int x = 0; x < breite; x++)
             {
-                matrix[y][x] = f.isAlive(x, y);
+                matrix[y][x] = f.istLebendig(x, y);
             }
         }
 

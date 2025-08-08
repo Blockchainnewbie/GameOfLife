@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet; // Neu für den TreeSet
 
@@ -30,9 +29,17 @@ public class AStarAlgorithmus {
 
     /**
      * Findet den kürzesten Weg von einer Start- zu einer Zielposition.
+     * Implementiert den klassischen A*-Suchablauf mit einer offenen Liste (TreeSet)
+     * und einer geschlossenen Menge, unter Nutzung einer (zulässigen) Heuristik.
+     *
+     * Hinweise zur Datenstrukturwahl:
+     * - Die offene Liste ist ein TreeSet, sortiert nach f = g + h.
+     * - Bei gleichen f-Kosten erfolgt ein Tie-Break via Positions-Hash, damit keine Elemente "verschwinden".
+     *
      * @param start Die Startposition.
-     * @param ziel Die Zielposition.
-     * @return Eine Liste von GitterPositionen, die den Pfad repräsentieren, oder eine leere Liste, wenn kein Pfad gefunden wurde.
+     * @param ziel  Die Zielposition.
+     * @return Eine Liste von GitterPositionen, die den Pfad repräsentieren,
+     *         oder eine leere Liste, wenn kein Pfad gefunden wurde.
      */
     public List<GitterPosition> findeWeg(GitterPosition start, GitterPosition ziel) {
         // Die Menge der bereits besuchten und ausgewerteten Knoten.
@@ -48,7 +55,7 @@ public class AStarAlgorithmus {
         /* Wechsel von PriorityQueue zu TreeSet nach lesen von 
         https://www.happycoders.eu/de/algorithmen/a-stern-algorithmus-java/ */
         
-        // Ein TreeSet für die zu besuchenden Knoten, sortiert nach den f-Kosten (g + h).
+    // Ein TreeSet für die zu besuchenden Knoten, sortiert nach den f-Kosten (g + h).
         TreeSet<KnotenEintrag> offeneListe = new TreeSet<>((e1, e2) -> {
             // Vergleich der f-Kosten
             int vergleich = Double.compare(e1.getGKosten() + e1.getHKosten(),
@@ -76,10 +83,8 @@ public class AStarAlgorithmus {
         // Hauptschleife des Algorithmus.
         while (!offeneListe.isEmpty()) {
             // Wähle den Knoten mit den niedrigsten f-Kosten.
-            /* KnotenEintrag aktuellerEintrag = offeneListe.first();
-            offeneListe.remove(aktuellerEintrag); 
-            oder mit pollFirst */
-            KnotenEintrag aktuellerEintrag = offeneListe.pollFirst(); // nun pollFirst vorher nur poll Bei TreeSet gibt es diese Kombination als pollFirst(), die das kleinste Element zurückgibt und entfernt.
+            // TreeSet: kleinsten Eintrag (niedrigste f-Kosten) entnehmen
+            KnotenEintrag aktuellerEintrag = offeneListe.pollFirst();
 
             GitterPosition aktuellePosition = aktuellerEintrag.getPosition();
 
@@ -91,7 +96,7 @@ public class AStarAlgorithmus {
             // Füge die aktuelle Position zur geschlossenen Menge hinzu.
             geschlosseneMenge.add(aktuellePosition);
 
-            // Untersuche alle Nachbarn der aktuellen Position.
+            // Untersuche alle Nachbarn der aktuellen Position (4-Richtungen gemäß GitterModell).
             /*
              FÜR JEDEN nachbar In getNachbarn(aktuellePosition) TUE
              WENN nachbar IN geschlosseneMenge ODER getZustand(nachbar) = HINDERNIS 
@@ -109,7 +114,7 @@ public class AStarAlgorithmus {
                 double gNeu = aktuellerEintrag.getGKosten() + 1; // Kantenkosten sind 1.
                 KnotenEintrag vorhandenerEintrag = positionZuEintrag.get(nachbar); // Prüft ob Position schon besucht wurde, ob es einen Eintrag gibt und wie gut der bisher besuchte Weg war
 
-                // Wenn der neue Weg zum Nachbarn kürzer ist oder der Nachbar noch nicht besucht wurde.
+                // Wenn der neue Weg zum Nachbarn kürzer ist oder der Nachbar noch nicht besucht wurde:
                 if (vorhandenerEintrag == null || gNeu < vorhandenerEintrag.getGKosten()) {
                     double hNeu = heuristik.berechne(nachbar, ziel);
                     KnotenEintrag neuerEintrag = new KnotenEintrag(nachbar, gNeu, hNeu, aktuellerEintrag);
@@ -117,7 +122,7 @@ public class AStarAlgorithmus {
                     // Aktualisiere den Eintrag für den Nachbarn in der offenen Liste und der Map.
                     positionZuEintrag.put(nachbar, neuerEintrag);
 
-                    // Nur entfernen wenn der vorhandene Eintrag nicht null ist
+                    // Falls es bereits einen Eintrag gab: aus TreeSet entfernen und mit besseren Werten neu einfügen
                     if (vorhandenerEintrag != null) {
                         offeneListe.remove(vorhandenerEintrag);
                     }

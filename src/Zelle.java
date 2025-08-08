@@ -1,3 +1,7 @@
+/**
+ * Eine einzelne Zelle im Spiel des Lebens.
+ * Besitzt nur den binären Zustand lebendig/tot und passende Getter/Setter.
+ */
 public class Zelle 
 {   
     // Eine Zelle im Spiel des Lebens

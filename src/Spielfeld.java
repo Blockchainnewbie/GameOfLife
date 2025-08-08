@@ -1,8 +1,10 @@
+/**
+ * Datenmodell für Conway's Game of Life.
+ * Hält das Raster an Zellen und implementiert die Evolutionsregeln.
+ */
 public class Spielfeld 
 {
-    // Das Spielfeld als Konsolenausgabe im Spiel des Lebens
-    // Es besteht aus 50 x 50 Zellen
-    // deklariert ein 2d-Array des Typs Zelle und Namen raster
+    // Das Spielfeld (Raster) – 2D-Array von Zellen; Indexierung: [zeile][spalte]
     Zelle[][] raster;
     private int hoehe; // hoehe des Spielfelds
     private int breite; // breite des Spielfelds
@@ -129,16 +131,13 @@ public class Spielfeld
     }
 
     /**
-     * Methode zum Erzeugen der nächsten Generation nach den Regeln von Conway.
-     */
-        /**
      * Führt einen Simulationsschritt nach den Regeln von Conway's Game of Life aus
      * und gibt zurück, welche Zellen sich im Zustand geändert haben.
      *
      * @return Eine 2D-boolean-Matrix mit denselben Dimensionen wie das Spielfeld.
      *         true = Zustand der Zelle hat sich geändert, false = Zustand unverändert.
      */
-    public boolean[][] stepAndReportChanged() {
+    public boolean[][] schrittUndAenderungenMelden() {
         // Neues temporäres Raster für die nächste Generation
         Zelle[][] neuesRaster = new Zelle[hoehe][breite];
 
@@ -207,12 +206,11 @@ public class Spielfeld
 
     /**
      * Alte API für einen Simulationsschritt – behält Kompatibilität bei.
-     * Diese Methode delegiert intern an {@link #stepAndReportChanged()}, 
-     * ignoriert aber den Rückgabewert.
+     * Delegiert intern an schrittUndAenderungenMelden() und ignoriert dessen Rückgabewert.
      */
     public void berechneNaechsteGeneration() {
         // Rückgabewert wird hier nicht benötigt
-        stepAndReportChanged();
+    schrittUndAenderungenMelden();
     }
 
 
@@ -234,13 +232,13 @@ public class Spielfeld
         return this.breite;
     }
 
-    // Wir brauchen hier einen Getter, als eine Art Abstraktionsscichtfür die Abfrage ob die Zelle lebt
+    // Wir brauchen hier einen Getter, als eine Art Abstraktionsschicht für die Abfrage ob die Zelle lebt
     // Zugriff auf Zellen nur über Spielfeld-Methoden (z. B. isAlive(x, y)).
     // So bleibt die interne Datenstruktur (raster) gekapselt und kann später
     // leicht geändert werden, ohne dass anderer Code angepasst werden muss.
     // Erhöht Flexibilität, Lesbarkeit und vereinfacht z. B. A*-Integration.
 
-    public boolean isAlive(int x, int y) 
+    public boolean istLebendig(int x, int y) 
     {
         return raster[y][x].getIstLebendig();
     }
