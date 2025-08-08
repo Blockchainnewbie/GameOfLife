@@ -364,31 +364,17 @@ public class GameOfLifeFX extends Application {
                 System.out.println();
             }
             
-            int h = matrix.length;
-            int w = (h > 0) ? matrix[0].length : 0;
-
-            System.out.println("Matrix Größe: " + h + " x " + w);
             System.out.println("Matrix-Inhalt:");
 
-            for (int i = 0; i < h; i++) {
+            for (int i = 0; i < matrix.length; i++) {
                 StringBuilder row = new StringBuilder();
-                for (int j = 0; j < w; j++) {
+                for (int j = 0; j < (matrix.length > 0 ? matrix[0].length : 0); j++) {
                     row.append(matrix[i][j] ? "1" : "0");
                 }
                 System.out.println(row.toString());
             }
-
-            if (h > 0) {
-                w = matrix[0].length;
-            } else {
-                w = 0;
-            }
-
         });
-
-        // Event-Handler für den "Größe ändern"-Button
-        resizeButton.setOnAction(e -> showSizeDialog());
-
+        
         // Alle Elemente zum Header hinzufügen
         header.getChildren().addAll(
                                     title, subtitle,
